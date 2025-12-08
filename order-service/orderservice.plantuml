@@ -1,0 +1,133 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class CreateOrderCommand {
+  + CreateOrderCommand(String, String, String, int, String, OrderStatus): 
+  - addressId: String
+  + orderId: String
+  - productId: String
+  - quantity: int
+  - userId: String
+  - orderStatus: OrderStatus
+  + equals(Object): boolean
+  # canEqual(Object): boolean
+  + hashCode(): int
+  + toString(): String
+  + builder(): CreateOrderCommandBuilder
+   quantity: int
+   productId: String
+   addressId: String
+   orderId: String
+   orderStatus: OrderStatus
+   userId: String
+}
+class CreateOrderCommandBuilder {
+  ~ CreateOrderCommandBuilder(): 
+  + orderId(String): CreateOrderCommandBuilder
+  + userId(String): CreateOrderCommandBuilder
+  + productId(String): CreateOrderCommandBuilder
+  + quantity(int): CreateOrderCommandBuilder
+  + addressId(String): CreateOrderCommandBuilder
+  + orderStatus(OrderStatus): CreateOrderCommandBuilder
+  + build(): CreateOrderCommand
+  + toString(): String
+}
+class OrderAggregate {
+  + OrderAggregate(): 
+  + OrderAggregate(CreateOrderCommand): 
+  + on(OrderCreatedEvent): void
+}
+class OrderCreateRest {
+  + OrderCreateRest(): 
+  - addressId: String
+  - productId: String
+  - quantity: int
+  + equals(Object): boolean
+  # canEqual(Object): boolean
+  + hashCode(): int
+  + toString(): String
+   quantity: int
+   productId: String
+   addressId: String
+}
+class OrderCreatedEvent {
+  + OrderCreatedEvent(): 
+  + OrderCreatedEvent(String, String, String, int, String, OrderStatus): 
+  - addressId: String
+  - productId: String
+  - quantity: int
+  - orderStatus: OrderStatus
+  - userId: String
+  - orderId: String
+  + equals(Object): boolean
+  # canEqual(Object): boolean
+  + hashCode(): int
+  + toString(): String
+   quantity: int
+   productId: String
+   addressId: String
+   orderId: String
+   orderStatus: OrderStatus
+   userId: String
+}
+class OrderEntity {
+  + OrderEntity(): 
+  + OrderEntity(String, String, String, int, String, OrderStatus): 
+  - quantity: int
+  - addressId: String
+  - orderStatus: OrderStatus
+  + orderId: String
+  - userId: String
+  - productId: String
+  + equals(Object): boolean
+  # canEqual(Object): boolean
+  + hashCode(): int
+  + toString(): String
+   quantity: int
+   productId: String
+   addressId: String
+   orderId: String
+   orderStatus: OrderStatus
+   userId: String
+}
+class OrderEventsHandler {
+  + OrderEventsHandler(OrdersRepository): 
+  + on(OrderCreatedEvent): void
+}
+class OrderSaga {
+  + OrderSaga(): 
+  + handle(ProductReservedEvent): void
+  + handle(OrderCreatedEvent): void
+}
+class OrderServiceApplication {
+  + OrderServiceApplication(): 
+  + main(String[]): void
+}
+enum OrderStatus << enumeration >> {
+  + OrderStatus(): 
+  + values(): OrderStatus[]
+  + valueOf(String): OrderStatus
+}
+class OrdersCommandController {
+  + OrdersCommandController(CommandGateway): 
+  + createOrder(OrderCreateRest): String
+}
+interface OrdersRepository << interface >>
+class XStreamConfig {
+  + XStreamConfig(): 
+  ~ xStream(): XStream
+}
+
+CreateOrderCommand        "1" *-[#595959,plain]-> "orderStatus\n1" OrderStatus               
+CreateOrderCommandBuilder  +-[#820000,plain]-  CreateOrderCommand        
+OrderAggregate             -[#595959,dashed]->  OrderCreatedEvent         : "«create»"
+OrderAggregate            "1" *-[#595959,plain]-> "orderStatus\n1" OrderStatus               
+OrderCreatedEvent         "1" *-[#595959,plain]-> "orderStatus\n1" OrderStatus               
+OrderEntity               "1" *-[#595959,plain]-> "orderStatus\n1" OrderStatus               
+OrderEventsHandler         -[#595959,dashed]->  OrderEntity               : "«create»"
+OrderEventsHandler        "1" *-[#595959,plain]-> "ordersRepository\n1" OrdersRepository          
+OrdersCommandController    -[#595959,dashed]->  CreateOrderCommand        : "«create»"
+@enduml

@@ -1,0 +1,176 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class CreateProductCommand {
+  + CreateProductCommand(String, String, BigDecimal, Integer): 
+  - productId: String
+  - price: BigDecimal
+  - quantity: Integer
+  - title: String
+  + equals(Object): boolean
+  # canEqual(Object): boolean
+  + hashCode(): int
+  + toString(): String
+  + builder(): CreateProductCommandBuilder
+   quantity: Integer
+   productId: String
+   title: String
+   price: BigDecimal
+}
+class CreateProductCommandBuilder {
+  ~ CreateProductCommandBuilder(): 
+  + productId(String): CreateProductCommandBuilder
+  + title(String): CreateProductCommandBuilder
+  + price(BigDecimal): CreateProductCommandBuilder
+  + quantity(Integer): CreateProductCommandBuilder
+  + build(): CreateProductCommand
+  + toString(): String
+}
+class CreateProductCommandInterceptor {
+  + CreateProductCommandInterceptor(ProductLookupRepository): 
+  + handle(List<CommandMessage<?>>): BiFunction<Integer, CommandMessage<?>, CommandMessage<?>>
+}
+class CreateProductRestModel {
+  + CreateProductRestModel(): 
+  - title: String
+  - price: BigDecimal
+  - quantity: Integer
+  + equals(Object): boolean
+  # canEqual(Object): boolean
+  + hashCode(): int
+  + toString(): String
+   quantity: Integer
+   price: BigDecimal
+   title: String
+}
+class ErrorMessage {
+  + ErrorMessage(Date, String): 
+  - message: String
+  - timestamp: Date
+   timestamp: Date
+   message: String
+}
+class FindProductQuery {
+  + FindProductQuery(): 
+}
+class ProductAggregate {
+  + ProductAggregate(): 
+  + ProductAggregate(CreateProductCommand): 
+  + handle(ReserveProductCommand): void
+  + on(ProductCreatedEvent): void
+  + on(ProductReservedEvent): void
+}
+class ProductCommandController {
+  + ProductCommandController(): 
+  + createProduct(CreateProductRestModel): String
+  + getProductById(Long): String
+}
+class ProductCreatedEvent {
+  + ProductCreatedEvent(): 
+  - productId: String
+  - price: BigDecimal
+  - title: String
+  - quantity: Integer
+  + equals(Object): boolean
+  # canEqual(Object): boolean
+  + hashCode(): int
+  + toString(): String
+   quantity: Integer
+   productId: String
+   title: String
+   price: BigDecimal
+}
+class ProductEntity {
+  + ProductEntity(): 
+  - productId: String
+  - quantity: Integer
+  - price: BigDecimal
+  - title: String
+   quantity: Integer
+   productId: String
+   title: String
+   price: BigDecimal
+}
+class ProductEventsHandler {
+  + ProductEventsHandler(ProductRepository): 
+  + handle(Exception): void
+  + on(ProductReservedEvent): void
+  + on(ProductCreatedEvent): void
+  + handle(IllegalArgumentException): void
+}
+class ProductLookupEntity {
+  + ProductLookupEntity(String, String): 
+  + ProductLookupEntity(): 
+  - productId: String
+  - title: String
+   productId: String
+   title: String
+}
+class ProductLookupEventsHandler {
+  + ProductLookupEventsHandler(ProductLookupRepository): 
+  + on(ProductCreatedEvent): void
+}
+interface ProductLookupRepository << interface >> {
+  + findByProductIdOrTitle(String, String): ProductLookupEntity
+}
+class ProductQueryController {
+  + ProductQueryController(): 
+   products: List<ProductRestModel>
+}
+interface ProductRepository << interface >> {
+  + findByProductId(String): ProductEntity
+  + findByProductIdOrTitle(String, String): ProductEntity
+}
+class ProductRestModel {
+  + ProductRestModel(): 
+  - title: String
+  - price: BigDecimal
+  - productId: String
+  - quantity: Integer
+   quantity: Integer
+   productId: String
+   title: String
+   price: BigDecimal
+}
+class ProductServiceErrorHandler {
+  + ProductServiceErrorHandler(): 
+  + handleIllegalStateException(IllegalStateException, WebRequest): ResponseEntity<Object>
+  + handleCommandExecutionException(CommandExecutionException, WebRequest): ResponseEntity<Object>
+  + handleOtherException(Exception, WebRequest): ResponseEntity<Object>
+}
+class ProductServiceEventsErrorHandler {
+  + ProductServiceEventsErrorHandler(): 
+  + onError(Exception, EventMessage<?>, EventMessageHandler): void
+}
+class ProductServiceTwoApplication {
+  + ProductServiceTwoApplication(): 
+  + registerCreateProductCommandInterceptor(ApplicationContext, CommandBus): void
+  + main(String[]): void
+  + configurer(EventProcessingConfigurer): void
+}
+class ProductsQueryHandler {
+  + ProductsQueryHandler(ProductRepository): 
+  + findProducts(FindProductQuery): List<ProductRestModel>
+}
+class XStreamConfig {
+  + XStreamConfig(): 
+  ~ xStream(): XStream
+}
+
+CreateProductCommandBuilder       +-[#820000,plain]-  CreateProductCommand             
+CreateProductCommandInterceptor  "1" *-[#595959,plain]-> "productLookupRepository\n1" ProductLookupRepository          
+ProductAggregate                  -[#595959,dashed]->  ProductCreatedEvent              : "«create»"
+ProductCommandController          -[#595959,dashed]->  CreateProductCommand             : "«create»"
+ProductEventsHandler              -[#595959,dashed]->  ProductEntity                    : "«create»"
+ProductEventsHandler             "1" *-[#595959,plain]-> "productRepository\n1" ProductRepository                
+ProductLookupEventsHandler        -[#595959,dashed]->  ProductLookupEntity              : "«create»"
+ProductLookupEventsHandler       "1" *-[#595959,plain]-> "productLookupRepository\n1" ProductLookupRepository          
+ProductQueryController            -[#595959,dashed]->  FindProductQuery                 : "«create»"
+ProductServiceErrorHandler        -[#595959,dashed]->  ErrorMessage                     : "«create»"
+ProductServiceTwoApplication      -[#595959,dashed]->  ProductServiceEventsErrorHandler : "«create»"
+ProductsQueryHandler             "1" *-[#595959,plain]-> "productRepository\n1" ProductRepository                
+ProductsQueryHandler              -[#595959,dashed]->  ProductRestModel                 : "«create»"
+@enduml
