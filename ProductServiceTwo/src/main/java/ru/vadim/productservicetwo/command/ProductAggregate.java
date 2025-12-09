@@ -15,7 +15,7 @@ import ru.vadim.productservicetwo.event.ProductReservationCancelEvent;
 
 import java.math.BigDecimal;
 
-@Aggregate
+@Aggregate(snapshotTriggerDefinition = "productSnapshotTriggerDefinition")
 public class ProductAggregate {
 
     @AggregateIdentifier

@@ -4,8 +4,10 @@ import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.queryhandling.QueryGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.vadim.productservicetwo.query.FindProductByIdQuery;
 import ru.vadim.productservicetwo.query.FindProductQuery;
 
 import java.util.List;
@@ -23,5 +25,14 @@ public class ProductQueryController {
         List<ProductRestModel> products = queryGateway
                 .query(findProductQuery, ResponseTypes.multipleInstancesOf(ProductRestModel.class)).join();
         return products;
+    }
+
+    @GetMapping("/{productId}")
+    public ProductRestModel getProductById(@PathVariable String productId) {
+        FindProductByIdQuery query = new FindProductByIdQuery(productId);
+        return queryGateway.query(
+                query,
+                ResponseTypes.instanceOf(ProductRestModel.class)
+        ).join();
     }
 }

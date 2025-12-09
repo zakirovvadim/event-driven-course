@@ -30,4 +30,16 @@ public class ProductsQueryHandler {
         }
         return productRest;
     }
+
+    @QueryHandler
+    public ProductRestModel handle(FindProductByIdQuery query) {
+        ProductEntity productEntity = productRepository.findByProductId(query.getProductId());
+        if (productEntity == null) {
+            throw new IllegalArgumentException("Product not found: " + query.getProductId());
+        }
+
+        ProductRestModel productRestModel = new ProductRestModel();
+        BeanUtils.copyProperties(productEntity, productRestModel);
+        return productRestModel;
+    }
 }
